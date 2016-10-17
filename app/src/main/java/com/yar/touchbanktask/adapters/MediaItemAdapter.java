@@ -14,11 +14,8 @@ import com.yar.touchbanktask.R;
 import com.yar.touchbanktask.entity.json.media.Caption;
 import com.yar.touchbanktask.entity.json.media.MediaItem;
 
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,7 +26,6 @@ public class MediaItemAdapter extends RecyclerView.Adapter<MediaItemAdapter.Medi
     private List<MediaItem> mMediaItems;
 
     private Context mContext;
-    private SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat("dd.mm.yyyy HH:mm", Locale.US);
 
     public MediaItemAdapter(Context context) {
         mContext = context;
@@ -51,7 +47,7 @@ public class MediaItemAdapter extends RecyclerView.Adapter<MediaItemAdapter.Medi
         holder.title.setText(caption != null ? caption.getText() : "");
 
 
-        String date = DateFormat.format("dd MMM yyyy, EEE\nHH:mm", mediaItem.getCreatedTime() * 1000 ).toString();//mSimpleDateFormat.format();
+        String date = DateFormat.format("dd MMM yyyy, EEE\nkk:mm", mediaItem.getCreatedTime() * 1000).toString();
 
         holder.created.setText(date);
 
