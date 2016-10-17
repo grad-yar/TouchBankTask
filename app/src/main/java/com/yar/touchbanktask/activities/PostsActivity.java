@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
 public class PostsActivity extends AppCompatActivity {
@@ -143,12 +144,14 @@ public class PostsActivity extends AppCompatActivity {
         mSubscription.add(
                 Observable.interval(0, POLL_INTERVAL, TIME_UNIT).flatMap(aLong -> mUserModel.getRecentMedia())
                         .onErrorResumeNext(throwable -> Observable.empty())
+                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(this::updateRecentMediaView)
         );
 
         mSubscription.add(
                 Observable.interval(0, POLL_INTERVAL, TIME_UNIT).flatMap(aLong -> mUserModel.getUserInfo())
                         .onErrorResumeNext(throwable -> Observable.empty())
+                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(this::updateUserInfoView)
         );
 
