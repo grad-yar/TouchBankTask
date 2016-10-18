@@ -144,8 +144,7 @@ public class PostsActivity extends AppCompatActivity {
                 .flatMap(aLong -> observableToPoll)
                 .onErrorResumeNext(
                         throwable -> {
-
-                            Log.e(TAG, throwable.getMessage());
+                            Log.e(TAG, throwable.toString());
 
                             return Observable.empty();
                         }

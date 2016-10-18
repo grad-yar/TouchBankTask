@@ -31,7 +31,7 @@ public class RealmGsonConverter implements JsonSerializer<RealmList<RealmString>
         RealmList<RealmString> realmList = new RealmList<>();
         JsonArray ja = json.getAsJsonArray();
         for (JsonElement je : ja) {
-            realmList.add(context.deserialize(je, RealmString.class));
+            realmList.add(new RealmString(context.deserialize(je, String.class)));
         }
         return realmList;
     }

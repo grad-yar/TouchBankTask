@@ -9,6 +9,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -41,7 +43,6 @@ public class LoginDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Activity activity = getActivity();
-        AlertDialog.Builder adb = new AlertDialog.Builder(activity);
 
         mMWebView = new WebView(activity);
         mMWebView.setVerticalScrollBarEnabled(false);
@@ -52,17 +53,24 @@ public class LoginDialogFragment extends DialogFragment {
                 ViewGroup.LayoutParams.MATCH_PARENT)
         );
 
-        mMWebView.loadUrl(InstagramEndpoints.AUTH_URL);
-
-        setCancelable(false);
-
-        return adb.setTitle(R.string.dialog_title_authorize)
+        AlertDialog.Builder adb = new AlertDialog.Builder(activity);
+        AlertDialog alertDialog = adb.setTitle(R.string.dialog_title_authorize)
                 .setView(mMWebView)
+                .setCancelable(false)
                 .setNegativeButton(R.string.dialog_cancel_text, (dialog, which) -> {
                     mMWebView.stopLoading();
                     dialog.cancel();
                 })
                 .create();
+
+        alertDialog.setOnShowListener(dialog -> {
+            Window window = getDialog().getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            mMWebView.loadUrl(InstagramEndpoints.AUTH_URL);
+        });
+
+        return alertDialog;
     }
 
     public interface LoginListener {
