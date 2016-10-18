@@ -69,6 +69,7 @@ public class PostsActivity extends AppCompatActivity {
 
     private static final long POLL_INTERVAL = 5;
     private static final TimeUnit TIME_UNIT = TimeUnit.SECONDS;
+    private static final String TAG = PostsActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +131,7 @@ public class PostsActivity extends AppCompatActivity {
                     mUserModel.getFreshRecentMedia().subscribe(this::updateRecentMediaView,
                             throwable -> {
                                 mSwipeRefresh.setRefreshing(false);
-                                Log.d("Error", throwable.getMessage());
+                                Log.e(TAG, throwable.getMessage());
                             }));
         } else {
             mSwipeRefresh.setRefreshing(false);
@@ -138,20 +139,30 @@ public class PostsActivity extends AppCompatActivity {
         }
     }
 
+    private <T> Observable<T> pollingObservable(Observable<T> observableToPoll, long pollInterval, TimeUnit timeUnit) {
+        return Observable.interval(0, pollInterval, timeUnit)
+                .flatMap(aLong -> observableToPoll)
+                .onErrorResumeNext(
+                        throwable -> {
+
+                            Log.e(TAG, throwable.getMessage());
+
+                            return Observable.empty();
+                        }
+                )
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
     @Override
     protected void onStart() {
 
         mSubscription.add(
-                Observable.interval(0, POLL_INTERVAL, TIME_UNIT).flatMap(aLong -> mUserModel.getRecentMedia())
-                        .onErrorResumeNext(throwable -> Observable.empty())
-                        .observeOn(AndroidSchedulers.mainThread())
+                pollingObservable(mUserModel.getRecentMedia(), POLL_INTERVAL, TIME_UNIT)
                         .subscribe(this::updateRecentMediaView)
         );
 
         mSubscription.add(
-                Observable.interval(0, POLL_INTERVAL, TIME_UNIT).flatMap(aLong -> mUserModel.getUserInfo())
-                        .onErrorResumeNext(throwable -> Observable.empty())
-                        .observeOn(AndroidSchedulers.mainThread())
+                pollingObservable(mUserModel.getUserInfo(), POLL_INTERVAL, TIME_UNIT)
                         .subscribe(this::updateUserInfoView)
         );
 
